@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>입력 폼</title>
+</head>
+<body>
+    <h1>글자 입력 폼</h1>
+    <form method="post" action="{% url 'process_text' %}">
+        {% csrf_token %}
+        <label for="input_text">글자를 입력하세요:</label><br>
+        <input type="text" id="input_text" name="input_text"><br>
+        <input type="submit" value="제출">
+    </form>
+
+    {% if output_text %}
+        <h2>입력한 글자: {{ output_text }}</h2>
+    {% endif %}
+</body>
+</html>
