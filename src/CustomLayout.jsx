@@ -65,6 +65,14 @@ setMessage(newMessage)
           placeholder='메시지를 입력하세요'
           value={messsage}
           onChange={onChangeMessage}
+          onKeyUp={(e)=>{
+if (e.key==="Enter") {
+  addMsg()
+} else {
+  return;
+}
+
+          }}
           sx={{
             textDecoration:"none",
             margin: 0,
