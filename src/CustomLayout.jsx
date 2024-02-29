@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { messageListAtom } from './atom/atom';
 import { Outlet, useLocation } from 'react-router-dom';
+import axios from 'axios';
 export default  function CustomLayout() {
   const [messageList, setMessageList] = useRecoilState(messageListAtom)
   const [messsage,setMessage]=useState("")
@@ -23,7 +24,17 @@ setMessage(newMessage)
   }
   const addMsg=()=>{
     setMessageList(p=>[...p,messsage])
-    setMessage("")
+   
+    axios.post("http://127.0.0.1:8000/chat", {param:{user_data:{user_message:messsage}}})
+      .then((res) => {
+        console.log(res.data);
+        alert("post success");
+      })
+      .catch(function (error) {
+        alert("post fail",error);
+      });
+ setMessage("")
+
   }
   return (
     <div className='App'>
