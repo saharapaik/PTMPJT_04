@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from django.http import Http404
+from django.http import JsonResponse
 import os
 import sys
 import django
@@ -78,7 +79,7 @@ def ai_main(request: HttpRequest, out_text=None) -> HttpResponse:
     # os.environ["OPENAI_API_KEY"] = "sk-sssss" 이런 형식으로 넣으세요
     # os.environ["OPENAI_API_KEY"] = getpass.getpass()
 
-    os.environ["OPENAI_API_KEY"] = "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"
+    os.environ["OPENAI_API_KEY"] = "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"
     # getpass.getpass()
 
 
@@ -524,7 +525,9 @@ def ai_main(request: HttpRequest, out_text=None) -> HttpResponse:
     print(f'answer:{answer["answer"]["out_text"]}')
 
     # 아래부분은 출력할 필요가 없습니다.
-    print()
-    print(f'전체출력:{answer}')
-
-    return render(request, 'chat.html', {'context_variable': answer})
+    # print()
+    # print(f'전체출력:{answer}')
+    data = f'answer:{answer["answer"]["out_text"]}'
+    
+    return JsonResponse(data)
+    # return f'answer:{answer["answer"]["out_text"]}'
