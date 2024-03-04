@@ -10,7 +10,6 @@ function ChatContents(props) {
     return (
         <div className='ChatContents'>
             <PTChatBox />
-            <PTChatBox />
             {/* 유저가 채팅 치면 나오는 구간 */}
             {
                 messageList.map(msg => <div
@@ -20,7 +19,6 @@ function ChatContents(props) {
 
                 </div>)
             }
-            <PTChatBox />
             <div
                 className='flexBox'
             />

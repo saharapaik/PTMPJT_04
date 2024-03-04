@@ -16,6 +16,7 @@ function TrainerCard(props) {
                 className='TrainerCardContent'
             >
                 <div><CustomAvatar
+                
                     size={"60px"}
                 /></div>
                 <ul
