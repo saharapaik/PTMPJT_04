@@ -8,7 +8,7 @@ import os
 import sys
 import django
 from django.shortcuts import render
-
+from django.http import JsonResponse
 # Create your views here.
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'PTMPJT.settings')
@@ -27,6 +27,8 @@ from django.conf import settings
 
 from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse
+from django.http import JsonResponse
+
 
 
 from typing import Dict, List
@@ -69,22 +71,37 @@ from langchain.memory import ConversationBufferMemory
 import getpass
 import os
 
-def ai_main(request: HttpRequest, out_text=None) -> HttpResponse:
+from django.http import HttpRequest, HttpResponse, JsonResponse
 
-    
+def chat_view(request):
+    if request.method == 'GET':
+        user_message = request.GET.get('user_message', '')
 
+        # 여기서 user_message를 ai_main 함수에 전달하여 처리합니다.
+        response_text = ai_main(request, user_message)
 
+        # ai_main 함수에서 반환된 응답을 JSON 형식으로 반환합니다.
+        response_data = {
+            'received_message': user_message,
+            'response_message': response_text
+        }
+        return JsonResponse(response_data)
+    else:
+        return JsonResponse({'error': 'GET 요청만 지원합니다.'})
+
+    print(reponse_text)
+
+def ai_main(request: HttpRequest, user_message: str, out_text=None, response_text=None) -> str:
 
     # os.environ["OPENAI_API_KEY"] = "sk-sssss" 이런 형식으로 넣으세요
     # os.environ["OPENAI_API_KEY"] = getpass.getpass()
+    AI_KEY = os.getenv('AI_KEY')
 
-    os.environ["OPENAI_API_KEY"] = "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"
+    os.environ["OPENAI_API_KEY"] = AI_KEY
     # getpass.getpass()
-
 
     # 입출력 테스트시에는 3.5만 사용해야 합니다.
     llm = ChatOpenAI(temperature=0.5, max_tokens=500, model="gpt-3.5-turbo")
-
 
     # llm = ChatOpenAI(temperature=0.5, max_tokens=500, model="gpt-4")
 
@@ -95,7 +112,6 @@ def ai_main(request: HttpRequest, out_text=None) -> HttpResponse:
         @property
         def output_keys(self) -> List[str]:
             return ["out_text"]
-
 
     # 추출체인의 output_key를 변경하기 위한 클래스
 
@@ -129,7 +145,6 @@ def ai_main(request: HttpRequest, out_text=None) -> HttpResponse:
     {input}
     """  # noqa: E501
 
-
     def create_custom_extraction_chain(
             schema: dict,
             llm: BaseLanguageModel,
@@ -158,7 +173,6 @@ def ai_main(request: HttpRequest, out_text=None) -> HttpResponse:
 
         return prompt_template
 
-
     def create_chain(llm, template_path, output_key):
         return LLMChain(
             llm=llm,
@@ -168,7 +182,6 @@ def ai_main(request: HttpRequest, out_text=None) -> HttpResponse:
             output_key=output_key,
             verbose=True,
         )
-
 
     PATH = "./chain_prompts"
 
@@ -434,7 +447,8 @@ def ai_main(request: HttpRequest, out_text=None) -> HttpResponse:
 
     # 첫인사 강제 실행입니다. 이부분은 유저 데이타가 없어도 바로 앱에 접속하면 바로 미리 실행해야 합니다.
     user_data = {
-        "user_message": f"첫인사 한글로 출력 + 날씨:{weather}+ 현재시간:{current_date_time}"
+        "user_message": user_message
+            # f"첫인사 한글로 출력 + 날씨:{weather}+ 현재시간:{current_date_time}"
     }
     # user_data = {
     #     "user_message":"첫인사",
@@ -452,7 +466,7 @@ def ai_main(request: HttpRequest, out_text=None) -> HttpResponse:
         # "user_message":"여성분이 상담을 해줬으면 좋겠어요",
         # "user_message":"청소년 상다가 아니어도 여성상담사분을 추천해주세요",
         # "user_message":"저는 15살 이미려입니다. 마음이 슬퍼요. ",
-        "user_message": "친구와 싸웠어요.",
+        "user_message" : user_data["user_message"],
         # "user_message":"내 빵을 뺏어먹었어.",
         # "user_message":"상담종류는?",
         # "user_message":"다시말해줘",
@@ -520,6 +534,14 @@ def ai_main(request: HttpRequest, out_text=None) -> HttpResponse:
     }
     request_instance = UserRequest(**user_data)
     answer = gernerate_answer(request_instance)
+
+    out_text = answer["answer"]
+
+    # 답변을 JSON 형식으로 구성합니다.
+    response_data = {
+        "answer": out_text
+    }
+
     # 이부분이 채팅창에 나와야 합니다.
     print(f'answer:{answer["answer"]["out_text"]}')
 
@@ -527,4 +549,4 @@ def ai_main(request: HttpRequest, out_text=None) -> HttpResponse:
     print()
     print(f'전체출력:{answer}')
 
-    return render(request, 'chat.html', {'context_variable': answer})
+    return response_data
